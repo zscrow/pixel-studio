@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "description": "Aplicativo desktop de pixel art e animação com onion skin.",
   "author": "Andre Saulo",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "main": "desktop/main.cjs",
   "scripts": {
     "start": "electron .",
     "test": "node --check desktop/main.cjs && node --check desktop/preload.cjs && node --check dist/app.js && node tests/editor.cjs",
-    "build:win": "electron-builder --win portable nsis --x64 --publish never"
+    "build:win": "electron-builder --win portable --x64 --publish never",
+    "build:installer": "electron-builder --win nsis --x64 --publish never"
   },
   "build": {
     "appId": "com.zscrow.pixelstudio",
@@ -21,13 +22,13 @@
     "files": [
       "dist/**/*",
       "desktop/**/*",
+      "LICENSE",
       "package.json"
     ],
     "asar": true,
     "win": {
       "target": [
-        "portable",
-        "nsis"
+        "portable"
       ],
       "icon": "desktop/assets/icon.ico",
       "signExecutable": false

@@ -5,6 +5,16 @@ let window;
 const smoke = process.argv.includes('--smoke-test');
 app.setName('Pixel Studio');
 app.setAppUserModelId('com.zscrow.pixelstudio');
+if (process.env.PORTABLE_EXECUTABLE_DIR) {
+  const profilePath = path.join(process.env.PORTABLE_EXECUTABLE_DIR, 'PixelStudio-Data');
+  try {
+    require('node:fs').mkdirSync(profilePath, { recursive: true });
+    app.setPath('userData', profilePath);
+  } catch {
+    dialog.showErrorBox('Pixel Studio portátil', 'Coloque o executável em uma pasta onde você tenha permissão de escrita, para salvar seus projetos e preferências.');
+    app.exit(1);
+  }
+}
 const ownLock = app.requestSingleInstanceLock();
 if (!ownLock) app.quit();
 else {

@@ -1,13 +1,13 @@
 # Pixel Studio para Windows
 
-Aplicativo de desktop para desenhar pixel art e animar frame a frame. Abre em uma janela própria, com menus do Windows, ícone e acesso a arquivos locais. Todo o editor é incluído no executável e funciona offline, sem navegador ou servidor.
+Aplicativo desktop portátil e open-source, com licença MIT, para desenhar pixel art e animar frame a frame. Abre em uma janela própria, com menus do Windows, ícone e acesso a arquivos locais. Todo o editor é incluído no executável e funciona offline, sem navegador ou servidor.
 
 ## Usar
 
 Os executáveis estão na seção [Releases](https://github.com/zscrow/pixel-studio/releases) do repositório.
 
-- **Instalador:** execute `Pixel-Studio-1.0.0-Setup.exe` e escolha a pasta. Ele cria atalhos na área de trabalho e no menu Iniciar.
-- **Portátil:** execute `Pixel-Studio-1.0.0-Windows.exe`, sem instalação. Node.js não é necessário para usar as versões empacotadas.
+- **Portátil:** baixe e execute `Pixel-Studio-1.0.0-Windows.exe`, sem instalação. Node.js não é necessário.
+- O perfil local é salvo na pasta `PixelStudio-Data`, ao lado do executável. Para levar o aplicativo e seus desenhos para outro computador, copie o executável e essa pasta juntos.
 - Os executáveis são gerados em `release/`, fora do histórico Git.
 
 O aplicativo usa Electron. Esta versão não possui assinatura digital de publicador.
@@ -26,7 +26,7 @@ O aplicativo usa Electron. Esta versão não possui assinatura digital de public
 
 `B` lápis · `E` borracha · `G` preenchimento · `I` conta-gotas · `Espaço` reproduzir/pausar · `Ctrl/Cmd+Z` desfazer · `Ctrl/Cmd+Shift+Z` ou `Ctrl+Y` refazer · `Ctrl/Cmd+S` salvar.
 
-O salvamento automático fica no perfil local do Pixel Studio, em `%APPDATA%/Pixel Studio`, separado da versão de navegador. Use Salvar projeto para guardar todos os frames em JSON e Abrir projeto para continuar depois. Para trazer um desenho da versão anterior, salve o JSON nela e abra no aplicativo. Mantenha uma cópia JSON dos seus projetos.
+O salvamento automático fica na pasta `PixelStudio-Data` na versão portátil. Na versão instalada ou em desenvolvimento, o perfil fica em `%APPDATA%/Pixel Studio`. Use Salvar projeto para guardar todos os frames em JSON e Abrir projeto para continuar depois. Para trazer um desenho da versão anterior, salve o JSON nela e abra no aplicativo. Mantenha uma cópia JSON dos seus projetos.
 
 Onion skin é uma referência visual; não faz parte dos arquivos exportados. Os frames são desenhados manualmente, sem interpolação automática.
 
@@ -40,6 +40,12 @@ npm start
 npm test
 npm run build:win
 ```
+
+Para gerar um instalador opcional com atalhos no Windows, execute `npm run build:installer`.
+
+## Licença
+
+[MIT](LICENSE). É permitido usar, estudar, modificar e redistribuir o código, inclusive comercialmente, preservando o aviso de copyright e a licença. As dependências mantêm suas próprias licenças.
 
 `desktop/` contém a janela, os menus e o ícone. `dist/` contém o editor empacotado localmente. `tests/` verifica desenho, histórico, onion skin e organização dos frames.
 
