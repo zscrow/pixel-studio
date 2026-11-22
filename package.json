@@ -1,0 +1,54 @@
+{
+  "name": "pixel-studio",
+  "version": "1.0.0",
+  "description": "Aplicativo desktop de pixel art e animação com onion skin.",
+  "author": "Andre Saulo",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --check desktop/main.cjs && node --check desktop/preload.cjs && node --check dist/app.js && node tests/editor.cjs",
+    "build:win": "electron-builder --win portable nsis --x64 --publish never"
+  },
+  "build": {
+    "appId": "com.zscrow.pixelstudio",
+    "productName": "Pixel Studio",
+    "directories": {
+      "output": "release",
+      "buildResources": "desktop/assets"
+    },
+    "files": [
+      "dist/**/*",
+      "desktop/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "desktop/assets/icon.ico",
+      "signExecutable": false
+    },
+    "portable": {
+      "artifactName": "Pixel-Studio-${version}-Windows.exe"
+    },
+    "nsis": {
+      "artifactName": "Pixel-Studio-${version}-Setup.exe",
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Pixel Studio",
+      "installerLanguages": ["pt_BR", "en_US"]
+    }
+  },
+  "devDependencies": {
+    "electron": "45.4.1",
+    "electron-builder": "26.18.0"
+  }
+}

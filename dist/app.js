@@ -3,7 +3,7 @@ let size=32,frames=[Array(1024).fill(null)],current=0,tool='pencil',color='#a78b
 const palette=['#ffffff','#a6a7b5','#555568','#20212c','#121319','#ef626c','#f49c6b','#f4ce6b','#9cd77c','#5bc6aa','#60bce4','#7089e9','#a78bfa','#d88bdf','#f3a7be','#754f7b','#805e45','#ce9669'];
 function toast(s){$('toast').textContent=s;$('toast').style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').style.display='none',2400)}
 function data(){return{format:'pixel-studio',version:2,name:$('projectName').value.trim()||'Sem título',size,frames,current,fps:+$('fps').value}}
-function persist(){try{localStorage.setItem('pixel-studio',JSON.stringify(data()));$('saved').textContent='Salvo neste navegador'}catch{$('saved').textContent='Use Salvar projeto para guardar seu trabalho'}}
+function persist(){try{localStorage.setItem('pixel-studio',JSON.stringify(data()));$('saved').textContent=window.pixelDesktop?'Salvo neste computador':'Salvo neste navegador'}catch{$('saved').textContent='Use Salvar projeto para guardar seu trabalho'}}
 function snapshot(){undo.push(JSON.stringify(data()));if(undo.length>60)undo.shift();redo=[]}
 function load(d){if(!d||![16,32,64,128].includes(d.size)||!Array.isArray(d.frames)||!d.frames.length||d.frames.length>500||d.frames.some(f=>!Array.isArray(f)||f.length!==d.size*d.size||f.some(c=>c!==null&&!/^#[0-9a-f]{6}$/i.test(c))))throw Error('Projeto inválido');stop();$('projectName').value=typeof d.name==='string'?d.name.slice(0,80):'Sem título';size=d.size;frames=d.frames;current=Math.min(Math.max(0,d.current|0),frames.length-1);$('fps').value=Math.min(60,Math.max(1,d.fps||8));$('size').value=size;resize();render();persist()}
 function resize(){canvas.width=canvas.height=pv.width=pv.height=size;$('dimensions').textContent=`${size} × ${size} px`;applyZoom()}
@@ -50,3 +50,16 @@ function moveFrame(direction){let next=current+direction;if(next<0||next>=frames
 $('moveLeft').onclick=()=>moveFrame(-1);$('moveRight').onclick=()=>moveFrame(1);
 $('newProject').onclick=()=>{if(!confirm('Criar um novo projeto? Salve o atual para manter uma cópia. Você também pode desfazer essa ação.'))return;snapshot();load({size:32,frames:[Array(1024).fill(null)],current:0,fps:8,name:'Sem título'});render()};
 document.querySelectorAll('button').forEach(b=>{if(!b.getAttribute('aria-label')&&!b.title)b.setAttribute('aria-label',b.textContent.trim())});
+
+if(window.pixelDesktop){
+  $('open').onclick=async()=>{
+    try{
+      const project=await window.pixelDesktop.openProject();
+      if(!project)return;
+      const value=JSON.parse(project.text);
+      snapshot();load(value);
+      if(!value.name)$('projectName').value=project.name;
+      render();persist();toast('Projeto aberto');
+    }catch{toast('Não foi possível abrir. Escolha um projeto Pixel Studio válido.');}
+  };
+}
