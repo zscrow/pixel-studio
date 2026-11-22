@@ -25,12 +25,12 @@ function command(id) { window?.webContents.send('editor-command', id); }
 function createWindow() {
   ipcMain.handle('project-open', async event => {
     if (event.sender !== window?.webContents) throw new Error('Janela inválida.');
-    const result = await dialog.showOpenDialog(window, { title: 'Abrir projeto Pixel Studio', properties: ['openFile'], filters: [{ name: 'Projeto Pixel Studio', extensions: ['json'] }] });
+    const result = await dialog.showOpenDialog(window, { title: 'Abrir projeto Pixel Studio', properties: ['openFile'], filters: [{ name: 'Projetos Pixel Studio', extensions: ['pxp', 'json'] }, { name: 'Projeto Pixel Studio (.pxp)', extensions: ['pxp'] }, { name: 'Projeto antigo (.json)', extensions: ['json'] }] });
     if (result.canceled || !result.filePaths.length) return null;
     const filePath = result.filePaths[0];
     const info = await fs.stat(filePath);
     if (info.size > 100 * 1024 * 1024) throw new Error('Projeto maior que 100 MB.');
-    return { text: await fs.readFile(filePath, 'utf8'), name: path.basename(filePath, '.json') };
+    return { text: await fs.readFile(filePath, 'utf8'), name: path.basename(filePath).replace(/\.(pxp|json)$/i, '') };
   });
   session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
   window = new BrowserWindow({
@@ -46,7 +46,8 @@ function createWindow() {
   window.webContents.on('render-process-gone', (_event, details) => { console.error(`Renderer encerrado: ${details.reason}`); if (smoke) app.exit(1); });
   window.webContents.session.on('will-download', (event, item, contents) => {
     if (contents !== window.webContents || !item.getURL().startsWith('blob:file:')) { event.preventDefault(); return; }
-    item.setSaveDialogOptions({ title: 'Salvar arquivo — Pixel Studio', defaultPath: path.join(app.getPath('documents'), path.basename(item.getFilename())) });
+    const project = /\.pxp$/i.test(item.getFilename());
+    item.setSaveDialogOptions({ title: project ? 'Salvar projeto .pxp — Pixel Studio' : 'Exportar PNG — Pixel Studio', defaultPath: path.join(app.getPath('documents'), path.basename(item.getFilename())), filters: project ? [{ name: 'Projeto Pixel Studio', extensions: ['pxp'] }] : [{ name: 'Imagem PNG', extensions: ['png'] }] });
   });
   window.once('ready-to-show', () => {
     if (smoke) { console.log('DESKTOP_SMOKE_OK: janela carregou os arquivos locais com sandbox e contextIsolation.'); app.exit(0); }
@@ -73,7 +74,7 @@ function createWindow() {
       { label: 'Duplicar frame', accelerator: 'CmdOrCtrl+D', click: () => command('duplicate') }
     ] },
     { label: 'Visualizar', submenu: [{ role: 'togglefullscreen', label: 'Tela cheia' }, { label: 'Alternar grade', click: () => command('grid') }] },
-    { label: 'Ajuda', submenu: [{ label: 'Sobre o Pixel Studio', click: () => dialog.showMessageBox(window, { type: 'info', title: 'Pixel Studio', message: `Pixel Studio ${app.getVersion()}`, detail: 'Editor de pixel art e animação para Windows.\nFunciona offline.\n\nB: lápis • E: borracha • G: preencher • I: conta-gotas\nEspaço: reproduzir / pausar\n\nSalve o projeto JSON para transportar seus desenhos.' }) }] }
+    { label: 'Ajuda', submenu: [{ label: 'Sobre o Pixel Studio', click: () => dialog.showMessageBox(window, { type: 'info', title: 'Pixel Studio', message: `Pixel Studio ${app.getVersion()}`, detail: 'Editor de pixel art e animação para Windows.\nFunciona offline.\n\nB: lápis • E: borracha • G: preencher • I: conta-gotas\nEspaço: reproduzir / pausar\n\nSalve o projeto .pxp para transportar seus desenhos. Projetos antigos .json também podem ser abertos.' }) }] }
   ]));
   window.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
   if (smoke) setTimeout(() => { console.error('Tempo limite ao abrir o aplicativo.'); app.exit(1); }, 30000).unref();
